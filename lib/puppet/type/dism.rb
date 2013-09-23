@@ -21,6 +21,7 @@ Puppet::Type.newtype(:dism) do
 
   newparam(:answer) do
     desc "The answer file for installing the feature."
+    newvalues(/[a-zA-Z]:\\/, /\\\\/)
   end
 
   newparam(:exitcode, :array_matching => :all) do
