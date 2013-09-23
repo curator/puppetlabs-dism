@@ -24,6 +24,23 @@ Puppet::Type.newtype(:dism) do
     newvalues(/[a-zA-Z]:\\/, /\\\\/)
   end
 
+  newparam(:source) do
+    desc "Path to source files for feature (optional)"
+    newvalues(/[a-zA-Z]:\\/, /\\\\/)
+  end
+
+  newparam(:all) do
+    desc "Whether or not to install all parental dependencies (optional, default: false)"
+    defaultto :false
+    newvalues(:true, :false)
+  end
+
+  newparam(:limitaccess) do
+    desc "Whether or not to allow dism to connect to Windows Update during install/removal (optional, default: false)"
+    defaultto :false
+    newvalues(:true, :false)
+  end
+
   newparam(:exitcode, :array_matching => :all) do
     desc "DISM installation process exit code (optional)"
     defaultto([0, 3010, 3010 & 0xFF])
