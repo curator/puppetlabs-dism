@@ -31,14 +31,14 @@ Puppet::Type.newtype(:dism) do
 
   newparam(:all) do
     desc "Whether or not to install all parental dependencies (optional, default: false)"
-    defaultto :false
     newvalues(:true, :false)
+    defaultto false
   end
 
   newparam(:limitaccess) do
     desc "Whether or not to allow dism to connect to Windows Update during install/removal (optional, default: false)"
-    defaultto :false
     newvalues(:true, :false)
+    defaultto false
   end
 
   newparam(:exitcode, :array_matching => :all) do
