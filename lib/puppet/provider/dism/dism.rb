@@ -54,6 +54,9 @@ Puppet::Type.type(:dism).provide(:dism) do
     if resource[:source]
       execution_string = execution_string + [ "/Source:#{resource[:source]}" ]
     end
+    if resource[:limitaccess]
+      execution_string = execution_string + [ "/limitaccess" ]
+    end
     if resource[:all]
       execution_string = execution_string + [ "/all" ]
     end
