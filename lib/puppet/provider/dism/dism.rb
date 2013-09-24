@@ -46,16 +46,16 @@ Puppet::Type.type(:dism).provide(:dism) do
       '/NoRestart'
     ]
 
-    execution_string = base_dism + [ " /FeatureName:#{resource[:name]}" ]
+    execution_string = base_dism + [ "/FeatureName:#{resource[:name]}" ]
 
     if resource[:answer]
-      execution_string = execution_string + [ " /Apply-Unattend:#{resource[:answer]}" ]
+      execution_string = execution_string + [ "/Apply-Unattend:#{resource[:answer]}" ]
     end
     if resource[:source]
-      execution_string = execution_string + [ " /Source:#{resource[:source]}" ]
+      execution_string = execution_string + [ "/Source:#{resource[:source]}" ]
     end
     if resource[:all]
-      execution_string = execution_string + [ " /all" ]
+      execution_string = execution_string + [ "/all" ]
     end
 
     output = execute(execution_string, :failonfail => false)
