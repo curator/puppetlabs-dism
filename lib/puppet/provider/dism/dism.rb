@@ -38,11 +38,27 @@ Puppet::Type.type(:dism).provide(:dism) do
     else
       dism_cmd = "#{Dir::WINDOWS}\\system32\\Dism.exe"
     end
+
+    base_dism = [
+      dism_cmd,
+      '/online',
+      '/Enable-Feature',
+      '/NoRestart'
+    ]
+
+    execution_string = base_dism + [ " /FeatureName:#{resource[:name]}" ]
+
     if resource[:answer]
-      output = execute([dism_cmd, '/online', '/Enable-Feature', "/FeatureName:#{resource[:name]}", "/Apply-Unattend:#{resource[:answer]}", '/NoRestart'], :failonfail => false)
-    else
-      output = execute([dism_cmd, '/online', '/Enable-Feature', "/FeatureName:#{resource[:name]}", '/NoRestart'], :failonfail => false)
+      execution_string = execution_string + [ " /Apply-Unattend:#{resource[:answer]}" ]
     end
+    if resource[:source]
+      execution_string = execution_string + [ " /Source:#{resource[:source]}" ]
+    end
+    if resource[:all]
+      execution_string = execution_string + [ " /all" ]
+    end
+
+    output = execute(execution_string, :failonfail => false)
     raise Puppet::Error, "Unexpected exitcode: #{$?.exitstatus}\nError:#{output}" unless resource[:exitcode].include? $?.exitstatus
   end
 
