@@ -3,7 +3,7 @@ Puppet::Type.type(:dism).provide(:dism) do
 
   confine     :operatingsystem => :windows
   confine     :true =>  begin
-    /^6\.[1-2]\..*/.match(:kernelversion)
+    /^6\.[1-2]\..*/.match(Facter.value(:kernelversion))
   end
   defaultfor  :operatingsystem => :windows
 
