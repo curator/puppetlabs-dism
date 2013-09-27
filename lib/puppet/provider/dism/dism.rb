@@ -1,8 +1,11 @@
 Puppet::Type.type(:dism).provide(:dism) do
-  @doc = "Manages Windows features for Windows 2008R2 and Windows 7"
+  @doc = "Manages Windows features for Windows 7, 8, Server 2008 R2 and 2012"
 
-  confine    :operatingsystem => :windows
-  defaultfor :operatingsystem => :windows
+  confine     :operatingsystem => :windows
+  confine     :true =>  begin
+    /^6\.[1-2]\..*/.match(:kernelversion)
+  end
+  defaultfor  :operatingsystem => :windows
 
   if Puppet.features.microsoft_windows?
     if ENV.has_key?('ProgramFiles(x86)')
@@ -58,6 +61,7 @@ Puppet::Type.type(:dism).provide(:dism) do
       execution_string = execution_string + [ "/limitaccess" ]
     end
     if resource[:all]
+      # Note this is only supported on Windows 8/2012
       execution_string = execution_string + [ "/all" ]
     end
 

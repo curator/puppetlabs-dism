@@ -30,7 +30,7 @@ Puppet::Type.newtype(:dism) do
   end
 
   newparam(:all) do
-    desc "Whether or not to install all parental dependencies (optional, default: false)"
+    desc "Whether or not to install all parental dependencies (Windows 8/2012 only, optional, default: false)"
     newvalues(:true, :false)
     defaultto false
   end
