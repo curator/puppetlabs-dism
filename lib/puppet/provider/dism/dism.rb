@@ -65,7 +65,7 @@ Puppet::Type.type(:dism).provide(:dism) do
       if (/^6\.2\..*/.match(Facter.value(:kernelversion)))
         execution_string = execution_string + [ "/all" ]
       else
-        Puppet::Error, 'The "all" parameter is only supported on Windows 8/2012'
+        raise Puppet::Error, 'The "all" parameter is only supported on Windows 8/2012'
       end
     end
 
