@@ -3,7 +3,7 @@ Puppet::Type.type(:dism).provide(:dism) do
 
   confine     :operatingsystem => :windows
   confine     :true =>  begin
-    /^6\.[1-2]\..*/.match(Facter.value(:kernelversion))
+    /^6\.[1-3]\..*/.match(Facter.value(:kernelversion))
   end
   defaultfor  :operatingsystem => :windows
 
@@ -62,7 +62,7 @@ Puppet::Type.type(:dism).provide(:dism) do
     end
     if resource[:all]
       # Note this is only supported on Windows 8/2012
-      if (/^6\.2\..*/.match(Facter.value(:kernelversion)))
+      if (/^6\.[2-3]\..*/.match(Facter.value(:kernelversion)))
         execution_string = execution_string + [ "/all" ]
       else
         raise Puppet::Error, 'The "all" parameter is only supported on Windows 8/2012'
