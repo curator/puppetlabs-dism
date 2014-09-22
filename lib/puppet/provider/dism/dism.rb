@@ -1,16 +1,18 @@
 Puppet::Type.type(:dism).provide(:dism) do
   @doc = "Manages Windows features for Windows 2008R2 and Windows 7"
 
-  confine    :operatingsystem => :windows
+  confine :operatingsystem => :windows
   defaultfor :operatingsystem => :windows
 
-  if Puppet.features.microsoft_windows?
-    if ENV.has_key?('ProgramFiles(x86)')
-      commands :dism => "#{Dir::WINDOWS}\\sysnative\\Dism.exe"
-    else
-      commands :dism => "#{Dir::WINDOWS}\\system32\\Dism.exe"
-    end
-  end
+  commands :dism =>
+               if File.exists? ("#{ENV['SYSTEMROOT']}\\sysnative\\Dism.exe")
+                 "#{ENV['SYSTEMROOT']}\\sysnative\\Dism.exe"
+               elsif  File.exists? ("#{ENV['SYSTEMROOT']}\\system32\\Dism.exe")
+                 "#{ENV['SYSTEMROOT']}\\system32\\Dism.exe"
+               else
+                 'dism.exe'
+               end
+
 
   def self.prefetch(resources)
     instances.each do |prov|
@@ -33,31 +35,26 @@ Puppet::Type.type(:dism).provide(:dism) do
   end
 
   def create
-    if ENV.has_key?('ProgramFiles(x86)')
-      dism_cmd = "#{Dir::WINDOWS}\\sysnative\\Dism.exe"
+    if resource[:answer] and resource[:all]
+      output = execute([command(:dism), '/online', '/Enable-Feature', '/All', "/FeatureName:#{resource[:name]}", "/Apply-Unattend:#{resource[:answer]}", '/NoRestart'], :failonfail => false)
+    elsif resource[:answer]
+      output = execute([command(:dism), '/online', '/Enable-Feature', "/FeatureName:#{resource[:name]}", "/Apply-Unattend:#{resource[:answer]}", '/NoRestart'], :failonfail => false)
+    elsif resource[:all]
+      output = execute([command(:dism), '/online', '/Enable-Feature', '/All', "/FeatureName:#{resource[:name]}", '/NoRestart'], :failonfail => false)
     else
-      dism_cmd = "#{Dir::WINDOWS}\\system32\\Dism.exe"
+      output = execute([command(:dism), '/online', '/Enable-Feature', "/FeatureName:#{resource[:name]}", '/NoRestart'], :failonfail => false)
     end
-    if resource[:answer]
-      output = execute([dism_cmd, '/online', '/Enable-Feature', "/FeatureName:#{resource[:name]}", "/Apply-Unattend:#{resource[:answer]}", '/NoRestart'], :failonfail => false)
-    else
-      output = execute([dism_cmd, '/online', '/Enable-Feature', "/FeatureName:#{resource[:name]}", '/NoRestart'], :failonfail => false)
-    end
+
     raise Puppet::Error, "Unexpected exitcode: #{$?.exitstatus}\nError:#{output}" unless resource[:exitcode].include? $?.exitstatus
+
   end
 
   def destroy
-    if ENV.has_key?('ProgramFiles(x86)')
-      dism_cmd = "#{Dir::WINDOWS}\\sysnative\\Dism.exe"
-    else
-      dism_cmd = "#{Dir::WINDOWS}\\system32\\Dism.exe"
-    end
-    output = execute([dism_cmd, '/online', '/Disable-Feature', "/FeatureName:#{resource[:name]}", '/NoRestart'], :failonfail => false)
-    raise Puppet::Error, "Unexpected exitcode: #{$?.exitstatus}\nError:#{output}" unless resource[:exitcode].include? $?.exitstatus
+    dism(['/online', '/Disable-Feature', "/FeatureName:#{resource[:name]}"])
   end
 
   def currentstate
-    feature = dism '/online', '/Get-FeatureInfo', "/FeatureName:#{resource[:name]}"
+    feature = dism(['/online', '/Get-FeatureInfo', "/FeatureName:#{resource[:name]}"])
     feature =~ /^State : (\w+)/
     $1
   end
