@@ -28,6 +28,12 @@ Puppet::Type.newtype(:dism) do
     defaultto(false)
   end
 
+  newparam(:limitaccess) do
+    desc "A flag indicating if we should allow dism to connect to Windows Update during install/removal (optional, default: false)"
+    newvalues(:true, :false)
+    defaultto false
+  end
+
   newparam(:exitcode, :array_matching => :all) do
     desc "DISM installation process exit code"
     # Ruby truncates exit codes to one bytes (https://bugs.ruby-lang.org/issues/8083)

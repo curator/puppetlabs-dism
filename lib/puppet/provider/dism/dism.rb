@@ -35,16 +35,22 @@ Puppet::Type.type(:dism).provide(:dism) do
   end
 
   def create
+    command_args = ['/online', '/NoRestart', '/Enable-Feature']
     if resource[:answer] and resource[:all]
-      output = execute([command(:dism), '/online', '/Enable-Feature', '/All', "/FeatureName:#{resource[:name]}", "/Apply-Unattend:#{resource[:answer]}", '/NoRestart'], :failonfail => false)
+      command_args += ['/All', "/FeatureName:#{resource[:name]}", "/Apply-Unattend:#{resource[:answer]}"]
     elsif resource[:answer]
-      output = execute([command(:dism), '/online', '/Enable-Feature', "/FeatureName:#{resource[:name]}", "/Apply-Unattend:#{resource[:answer]}", '/NoRestart'], :failonfail => false)
+      command_args += ["/FeatureName:#{resource[:name]}", "/Apply-Unattend:#{resource[:answer]}"]
     elsif resource[:all]
-      output = execute([command(:dism), '/online', '/Enable-Feature', '/All', "/FeatureName:#{resource[:name]}", '/NoRestart'], :failonfail => false)
+      command_args += ['/All', "/FeatureName:#{resource[:name]}"]
     else
-      output = execute([command(:dism), '/online', '/Enable-Feature', "/FeatureName:#{resource[:name]}", '/NoRestart'], :failonfail => false)
+      command_args += ["/FeatureName:#{resource[:name]}"]
     end
 
+    if resource[:limitaccess]
+      command_args += ['/limitaccess']
+    end
+
+    output = execute([command(:dism)]+command_args, :failonfail => false)
     raise Puppet::Error, "Unexpected exitcode: #{$?.exitstatus}\nError:#{output}" unless resource[:exitcode].include? $?.exitstatus
 
   end
